@@ -3,23 +3,27 @@ import urllib
 from pathlib import Path
 
 import yaml
+from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain.chat_models import init_chat_model
 from langchain_core.tools import tool
 from langgraph.checkpoint.memory import InMemorySaver
 from deepagents import create_deep_agent
 
-# Load API key from config file and set environment variables
+# Load .env from project root (project-scoped, never committed)
+load_dotenv(Path(__file__).resolve().parents[3] / ".env")
+
+# Resolve keys from config: YAML stores env-var names, values come from .env
 _config_path = Path(__file__).resolve().parents[3] / "src" / "config" / "application.yaml"
 with open(_config_path) as f:
     _config = yaml.safe_load(f)
 for _key, _value in _config.items():
     if _key.endswith("API_KEY"):
-        _api_key = _value.strip()
-        # Set the named key (e.g. OPENAI_API_KEY)
-        os.environ[_key.split()[-1]] = _api_key
-        # Also set provider-specific aliases so init_chat_model works
-        os.environ.setdefault("DEEPSEEK_API_KEY", _api_key)
+        _env_var_name = _value.strip()          # e.g. "OPENAI_API_KEY"
+        _api_key = os.environ.get(_env_var_name)
+        if _api_key:
+            os.environ[_key.split()[-1]] = _api_key
+            os.environ.setdefault("DEEPSEEK_API_KEY", _api_key)
 
 _fetched_text: str | None = None
 

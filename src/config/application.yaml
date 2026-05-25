@@ -1,3 +1,2 @@
-# Set via environment variable: OPENAI_API_KEY
-# DO NOT put real keys here. Copy .env.example to .env and fill in your keys.
-OPENAI_API_KEY: "${OPENAI_API_KEY}"
+# Value is the env-var name to look up (set in project-root .env, never committed)
+OPENAI_API_KEY: "OPENAI_API_KEY"
